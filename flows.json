@@ -1,0 +1,539 @@
+[
+    {
+        "id": "f6f2187d.f17ca8",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "705b30eaab2edcd3",
+        "type": "influxdb",
+        "hostname": "iplon-pvindia.com",
+        "port": "30086",
+        "protocol": "http",
+        "database": "SIRICILLA_30MW",
+        "name": "",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "1.x",
+        "url": "http://localhost:8086",
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "8a27bede3cf9f811",
+        "type": "influxdb",
+        "hostname": "iplon-pvindia.com",
+        "port": "8086",
+        "protocol": "http",
+        "database": "dimo",
+        "name": "",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "1.x",
+        "url": "http://localhost:8086",
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "edb3988ac6dcfbf7",
+        "type": "influxdb",
+        "hostname": "iplon-pvindia.com",
+        "port": "8086",
+        "protocol": "http",
+        "database": "hysolwin",
+        "name": "",
+        "usetls": false,
+        "tls": "c563e3c6072c32be",
+        "influxdbVersion": "1.x",
+        "url": "http://localhost:8086",
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "c563e3c6072c32be",
+        "type": "tls-config",
+        "name": "",
+        "cert": "",
+        "key": "",
+        "ca": "",
+        "certname": "",
+        "keyname": "",
+        "caname": "",
+        "servername": "",
+        "verifyservercert": false,
+        "alpnprotocol": ""
+    },
+    {
+        "id": "4b55ffb4aa5645e5",
+        "type": "inject",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "00 00 * * *",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 290,
+        "y": 160,
+        "wires": [
+            [
+                "172769cb30061e06"
+            ]
+        ]
+    },
+    {
+        "id": "172769cb30061e06",
+        "type": "http request",
+        "z": "f6f2187d.f17ca8",
+        "name": "meteoblue",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://my.meteoblue.com/packages/basic-1h_basic-day_solar-15min?apikey=RtIlaSm8byh3UnFr&lat=10.881943922351383&lon=78.34594984506371&asl=247&format=json&tz=Asia%2FKolkata",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 450,
+        "y": 160,
+        "wires": [
+            [
+                "98972e4b324ee4a8"
+            ]
+        ]
+    },
+    {
+        "id": "5760070d2f999e89",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "debug 12",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1000,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "98972e4b324ee4a8",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "meteoblue 15m",
+        "func": "let plantObj\n\nplantObj = []\n\n//for (var j = 0; j < msg.payload[1].length; j++)\n\nfor (var i = 0; i < msg.payload.data_xmin.time.length; i++) \n    {\n    var time = msg.payload.data_xmin.time[i]\n    var gni_instant = msg.payload.data_xmin.gni_instant[i]\n   // var gni_backwards = msg.payload.data_xmin.gni_backwards[i]\n    var dni_instant = msg.payload.data_xmin.dni_instant[i]\n    //var dni_backwards = msg.payload.data_xmin.dni_backwards[i]\n    var dif_instant = msg.payload.data_xmin.dif_instant[i]\n    //var dif_backwards = msg.payload.data_xmin.dif_backwards[i]\n    var ghi_instant = msg.payload.data_xmin.ghi_instant[i]\n    //var ghi_backwards = msg.payload.data_xmin.ghi_backwards[i]\n    var extraterrestrialradiation_instant = msg.payload.data_xmin.extraterrestrialradiation_instant[i]\n    //var extraterrestrialradiation_backwards = msg.payload.data_xmin.extraterrestrialradiation_backwards[i]\n       \n        \n            var obj = {\n                time,\n                gni_instant,\n                //gni_backwards,\n                dni_instant,\n                //dni_backwards,\n                dif_instant,\n                //dif_backwards,\n                ghi_instant,\n                //ghi_backwards,\n                extraterrestrialradiation_instant\n                //extraterrestrialradiation_backwards\n               \n            }\n\n            plantObj.push(obj)\n        }\n    \nmsg.payload = plantObj\n//return null;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 160,
+        "wires": [
+            [
+                "30d3da0f822a00bd"
+            ]
+        ]
+    },
+    {
+        "id": "30d3da0f822a00bd",
+        "type": "csv",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "sep": ",",
+        "hdrin": true,
+        "hdrout": "once",
+        "multi": "mult",
+        "ret": "\\n",
+        "temp": "",
+        "skip": "0",
+        "strings": true,
+        "include_empty_strings": true,
+        "include_null_values": true,
+        "x": 810,
+        "y": 160,
+        "wires": [
+            [
+                "5760070d2f999e89"
+            ]
+        ]
+    },
+    {
+        "id": "1df36c35347933fc",
+        "type": "file",
+        "z": "f6f2187d.f17ca8",
+        "name": "meteo",
+        "filename": "/home/iplon/Downloads/meteoblue iyy15m.csv",
+        "filenameType": "str",
+        "appendNewline": true,
+        "createDir": true,
+        "overwriteFile": "false",
+        "encoding": "none",
+        "x": 950,
+        "y": 260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "84f9b499e8f2fea7",
+        "type": "http request",
+        "z": "f6f2187d.f17ca8",
+        "name": "solarlog",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://auth.enerest.world/auth/realms/quotaapi/protocol/openid-connect/token",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 640,
+        "y": 400,
+        "wires": [
+            [
+                "0404ea46b874a22d"
+            ]
+        ]
+    },
+    {
+        "id": "01d0ec41161fed26",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "Build header and payload",
+        "func": "msg.headers = {\n  'Content-Type' : 'application/x-www-form-urlencoded'\n};\n\n// client backend-service\n/*\nmsg.payload = {'grant_type':'password', \n               'client_id':'backend-service',\n               'username':'alice',\n               'password':'alice',\n               'client_secret':'secret'\n              };\n*/\n\nmsg.payload = {'grant_type':'client_credentials', \n               'client_id':'650fb07e-8a18-4907-a6c4-e4f432f52cb2',\n               'client_secret':'b7f327e7-60de-4cb5-909a-ee916445e143'\n              };\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 400,
+        "wires": [
+            [
+                "84f9b499e8f2fea7"
+            ]
+        ]
+    },
+    {
+        "id": "469ac06808829b9d",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1150,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "0404ea46b874a22d",
+        "type": "json",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 790,
+        "y": 400,
+        "wires": [
+            [
+                "a0dbeeb197c93509"
+            ]
+        ]
+    },
+    {
+        "id": "a0dbeeb197c93509",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "set_bearer_token",
+        "func": "flow.set(\"bearer_token\", \"Bearer \" + msg.payload.access_token);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 950,
+        "y": 400,
+        "wires": [
+            [
+                "469ac06808829b9d"
+            ]
+        ]
+    },
+    {
+        "id": "40e2d76be3db9af6",
+        "type": "inject",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "300",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 210,
+        "y": 400,
+        "wires": [
+            [
+                "01d0ec41161fed26"
+            ]
+        ]
+    },
+    {
+        "id": "023f46f97482ea8c",
+        "type": "inject",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 260,
+        "wires": [
+            [
+                "a7408c23d9af16c9"
+            ]
+        ]
+    },
+    {
+        "id": "a7408c23d9af16c9",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "debug 13",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 440,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "5a0f66ba39ef76b4",
+        "type": "inject",
+        "z": "f6f2187d.f17ca8",
+        "name": "INJECT",
+        "props": [],
+        "repeat": "60",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 320,
+        "y": 720,
+        "wires": [
+            [
+                "a5a394a6d710e783"
+            ]
+        ]
+    },
+    {
+        "id": "d96c85e364fccba6",
+        "type": "influxdb in",
+        "z": "f6f2187d.f17ca8",
+        "influxdb": "705b30eaab2edcd3",
+        "name": "B01",
+        "query": "SELECT last(\"value\") FROM \"scaback_csv\" WHERE (\"b\" = 'B01' AND \"f\" =~ /.*SCB*./) AND time >= now() - 10m GROUP BY time(1m), \"b\", \"d\", \"f\" fill(none);\nSELECT last(\"value\") FROM \"scaback_csv\" WHERE (\"b\" = 'B01' AND \"f\" = 'UDC') AND time >= now() - 10m GROUP BY time(1m), \"b\", \"d\", \"f\" fill(none);",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "organisation",
+        "x": 550,
+        "y": 580,
+        "wires": [
+            [
+                "0d68db5027dad796"
+            ]
+        ]
+    },
+    {
+        "id": "0d68db5027dad796",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "B01",
+        "func": "let plantObj\n\nplantObj = []\n\nfor (var j =0; j < msg.payload[1].length;j++)\n for (var i =0; i < msg.payload[0].length;i++)\n {\n     var itime= new Date(msg.payload[0][i].time).getTime();\n       var utime= new Date(msg.payload[1][j].time).getTime();\n       var idevice=msg.payload[0][i].d\n       var udevice=msg.payload[1][j].d  \n         \n if ((itime==utime)&&(idevice==udevice))\n\n \n {\n     var time=utime\n    var IDC=msg.payload[0][i].last;\n    var UDC= msg.payload[1][j].last;\n        \n    var PDC=IDC*UDC\n     var EDC = (PDC*60)/(60*60*1000);\n \n \n var field_idc= msg.payload[0][i].f;\n  var field_udc= msg.payload[1][j].f;\n//node.send(obj);\nvar obj={\nTIME:new Date(time),\nIDC,\nUDC,\nedc:EDC,\nf:[\"EDC01\",\n\"EDC10\",\n\"EDC11\",\n\"EDC12\",\n\"EDC02\",\n\"EDC03\",\n\"EDC04\",\n\"EDC05\",\n\"EDC06\",\n\"EDC07\",\n\"EDC08\",\n\"EDC09\"\n],\nudevice,\nidevice,\nfield_idc\n\n//field_new\n//TOTAL\n}\n\nplantObj.push(obj)\n}\n}\n\nmsg.payload =plantObj\n//return null;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 750,
+        "y": 580,
+        "wires": [
+            [
+                "3bd35b4a3034edde"
+            ]
+        ]
+    },
+    {
+        "id": "3bd35b4a3034edde",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "debug 14",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 980,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "4aebce133175972e",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "function 1",
+        "func": "let plantObj\n\nplantObj = []\nvar Power_cut = 0;\nvar Start_Time = 0;\nvar End_Time=0;\n for (var i =1; i < msg.payload[0].length;i++)\n {\n   var Time = msg.payload[0][i].time\n   var Grid_EM_UAC12 = msg.payload[0][i].last\n   var Grid_EM_UAC23 = msg.payload[1][i].last\n   var Grid_EM_UAC31 = msg.payload[2][i].last\n  // var DG2_EAE = msg.payload[3][i].last\n   //var DG1_EAE = msg.payload[4][i].last\n   //var SOLAR_EM_EAE = msg.payload[5][i].last       \n   var AVG = (Grid_EM_UAC12 + Grid_EM_UAC23 + Grid_EM_UAC31)/3\n   \n\n if ((AVG <50)&&(Start_Time==0))\n \n {\n\n   Start_Time = Time\n   Power_cut=Power_cut+1\n   var Solar_Initial = msg.payload[5][i].last \n   var DG1_Initial = msg.payload[4][i].last\n   var DG2_Intial = msg.payload[3][i].last\n   End_Time=0\n   }\n if((AVG>350)&&(End_Time==0))\n\n {\n  End_Time = Time\n   var Solar_final = msg.payload[5][i].last \n   var DG1_final = msg.payload[4][i].last\n   var DG2_final = msg.payload[3][i].last\n  Start_Time=0\n}     \n   \n\n//node.send(obj);\nvar obj={\nTime,\nGrid_EM_UAC12,\nGrid_EM_UAC23,\nGrid_EM_UAC31,\nAVG,\nPower_cut,\nStart_Time,\nEnd_Time,\nDG1_Initial,\nDG1_final,\nDG2_Intial,\nDG2_final,\nSolar_Initial,\nSolar_final\n////DG1_EAE,\n//DG2_EAE,\n//SOLAR_EM_EAE\n}\n\nplantObj.push(obj)\n\n }\n\nmsg.payload =plantObj\n//return null;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 680,
+        "y": 700,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "bdb8a9ee9383591c",
+        "type": "influxdb in",
+        "z": "f6f2187d.f17ca8",
+        "influxdb": "8a27bede3cf9f811",
+        "name": "dimo",
+        "query": "SELECT last(\"value\") FROM \"v\" WHERE (\"bd\" = 'dimo_700W' AND \"d\" = 'GRID_EM' AND \"f\" = 'UAC12') AND time >= now() - 1d GROUP BY time(1m), \"d\", \"f\" fill(none);\nSELECT last(\"value\") FROM \"v\" WHERE (\"bd\" = 'dimo_700W' AND \"d\" = 'GRID_EM' AND \"f\" = 'UAC23') AND time >= now() - 1d GROUP BY time(1m), \"d\", \"f\" fill(none);\nSELECT last(\"value\") FROM \"v\" WHERE (\"bd\" = 'dimo_700W' AND \"d\" = 'GRID_EM' AND \"f\" = 'UAC31') AND time >= now() - 1d GROUP BY time(1m), \"d\", \"f\" fill(none);\nSELECT last(\"value\") FROM \"v\" WHERE (\"bd\" = 'dimo_700W' AND \"d\" = 'DG2' AND \"f\" = 'EAE') AND time >= now() - 1d GROUP BY time(1m), \"d\", \"f\" fill(none);\nSELECT last(\"value\") FROM \"v\" WHERE (\"bd\" = 'dimo_700W' AND \"d\" = 'DG1' AND \"f\" = 'EAE') AND time >= now() - 1d GROUP BY time(1m), \"d\", \"f\" fill(none);\nSELECT last(\"value\") FROM \"v\" WHERE (\"bd\" = 'dimo_700W' AND \"d\" = 'SOLAR_EM' AND \"f\" = 'EAE') AND time >= now() - 1d GROUP BY time(1m), \"d\", \"f\" fill(none)",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "organisation",
+        "x": 490,
+        "y": 720,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f31fccd9bd85f1ac",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 950,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "a5a394a6d710e783",
+        "type": "influxdb in",
+        "z": "f6f2187d.f17ca8",
+        "influxdb": "edb3988ac6dcfbf7",
+        "name": "hysolwin",
+        "query": "SELECT last(\"value\") FROM \"v\" WHERE (\"bd\" = 'hysolwin_5MW' AND \"d\" = 'INV01' AND \"f\" = 'TOTAL_INV_EAE_DAY') AND time >= now() - 10d GROUP BY time(5m),p,b,d,f fill(previous);\nSELECT last(\"value\") FROM \"v\" WHERE (\"bd\" = 'hysolwin_5MW' AND \"d\" = 'INV22' AND \"f\" = 'TOTAL_INV_EAE_DAY') AND time >= now() - 10d GROUP BY time(5m),p,b,d,f fill(previous);\nSELECT last(\"value\") FROM \"v\" WHERE (\"bd\" = 'hysolwin_5MW' AND \"d\" = 'INV08' AND \"f\" = 'TOTAL_INV_EAE_DAY') AND time >= now() - 10d GROUP BY time(5m),p,b,d,f fill(previous);\nSELECT last(\"value\") FROM \"v\" WHERE (\"bd\" = 'hysolwin_5MW' AND \"d\" = 'INV14' AND \"f\" = 'TOTAL_INV_EAE_DAY') AND time >= now() - 10d GROUP BY time(5m),p,b,d,f fill(previous);",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "organisation",
+        "x": 460,
+        "y": 840,
+        "wires": [
+            [
+                "01bc2d9d9ed192e7",
+                "f31fccd9bd85f1ac"
+            ]
+        ]
+    },
+    {
+        "id": "202746a15c1b5e18",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "multiple measurement points",
+        "func": "\nfor (var i = 0; i < msg.payload.length; i++) \n{\n    var inv_sum = msg.payload[i].inv_sum\n    var time = msg.payload[i].TIME\n    var obj = {};\n    obj.payload =\n   \n        [\n            {\n                measurement: \"INV_SUM1\",\n\n                fields: {\n\n                    value: inv_sum\n\n                },\n                tags: {\n\n\n                },\n\n                timestamp: new Date(time)\n            }\n        ];\n\n    //plantObj.push(obj)\n    node.send(obj);   \n}\n\n//msg.payload = plantObj\n\n//return msg;\nreturn null;\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 880,
+        "y": 920,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "01bc2d9d9ed192e7",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "function 9",
+        "func": "let plantObj\n\nplantObj = []\n\n    //for (var j = 0; j < msg.payload[0].length; j++)\n    for (var i = 1; i < msg.payload[0].length; i++)\n   // for (var k = 0; k < msg.payload[2].length; k++) \n    //for (var l = 0; k < msg.payload[3].length; l++) \n     {\n        var time0 = new Date(msg.payload[0][i].time).getTime();\n        var time1 = new Date(msg.payload[1][i].time).getTime();\n        var time2 = new Date(msg.payload[2][i].time).getTime();\n        var time3 = new Date(msg.payload[3][i].time).getTime();\n        var inv01 = msg.payload[0][i].last\n        var inv22 = msg.payload[1][i].last\n        var inv08 = msg.payload[2][i].last\n        var inv14 = msg.payload[3][i].last\n\n        if ((time0 == time1 && time2 && time3))\n{\n            {\n                var inv_sum = inv01 + inv22 + inv08 + inv14\n            \n           // if (inv01&&inv22&&inv08&&inv14== \"null\")\n\n           //  {inv_sum=\"null\"}\n            //node.send(obj);\n            var obj = {\n                TIME: new Date(time0),\n                inv01,\n                inv08,\n                inv14,\n                inv22,\n                inv_sum\n\n            }\n\n            plantObj.push(obj)\n        }\n     }\n     }\nmsg.payload = plantObj\n//return null;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 620,
+        "y": 920,
+        "wires": [
+            [
+                "202746a15c1b5e18"
+            ]
+        ]
+    }
+]

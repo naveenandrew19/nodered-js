@@ -1,0 +1,9 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'asia.gcr.io/${PROJECT_ID}/ired302', '.']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'asia.gcr.io/${PROJECT_ID}/ired302']
+  env:
+  - 'CLOUDSDK_COMPUTE_ZONE=ap-south1-a'
+options:
+  logging: CLOUD_LOGGING_ONLY
