@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: nodered-sub
+ namespace: iplon-app-dev
+spec:
+ selector:
+    matchLabels:
+     app: nodered-sub
+ template:
+   metadata:
+     name: nodered-sub
+     labels:
+       app: nodered-sub
+   spec:
+     containers:
+     - name: nodered-sub
+       image: harbour.iplon.co.in/nodered-sub/nodered-sub/sub
+       ports:
+       - name: nodered-sub
+         containerPort: 1880
+     imagePullSecrets:
+       - name: harbor
+         
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+ name: nodered-sub
+ namespace: iplon-app-dev
+spec:
+ type: NodePort
+ selector:
+   app: nodered-sub
+ ports:
+   - port: 1880
+     targetPort: 1880
+     nodePort: 32082
